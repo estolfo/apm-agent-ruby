@@ -15,6 +15,7 @@ module ElasticAPM
         def initialize(*args)
           super
 
+          @subtype = lookup_adapter || 'unknown'
           @summarizer = SqlSummarizer.new
         end
 
@@ -24,14 +25,10 @@ module ElasticAPM
           name = summarize(payload[:sql]) || payload[:name]
           context =
             Span::Context.new(db: { statement: payload[:sql], type: 'sql' })
-          [name, TYPE, subtype, ACTION, context]
+          [name, TYPE, @subtype, ACTION, context]
         end
 
         private
-
-        def subtype
-          @subtype ||= (lookup_adapter || 'unknown')
-        end
 
         def summarize(sql)
           @summarizer.summarize(sql)
