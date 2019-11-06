@@ -9,15 +9,16 @@ module ElasticAPM
     TABLE_REGEX = %{["'`]?([A-Za-z0-9_]+)["'`]?}
 
     REGEXES = {
-      /^BEGIN/i => 'BEGIN',
-      /^COMMIT/i => 'COMMIT',
-      /^SELECT .* FROM #{TABLE_REGEX}/i => 'SELECT FROM ',
-      /^INSERT INTO #{TABLE_REGEX}/i => 'INSERT INTO ',
-      /^UPDATE #{TABLE_REGEX}/i => 'UPDATE ',
-      /^DELETE FROM #{TABLE_REGEX}/i => 'DELETE FROM '
+      /^BEGIN/iu => 'BEGIN',
+      /^COMMIT/iu => 'COMMIT',
+      /^SELECT .* FROM #{TABLE_REGEX}/iu => 'SELECT FROM ',
+      /^INSERT INTO #{TABLE_REGEX}/iu => 'INSERT INTO ',
+      /^UPDATE #{TABLE_REGEX}/iu => 'UPDATE ',
+      /^DELETE FROM #{TABLE_REGEX}/iu => 'DELETE FROM '
     }.freeze
 
     FORMAT = '%s%s'
+    UTF8 = 'UTF-8'
 
     def self.cache
       @cache ||= Util::LruCache.new
@@ -26,7 +27,8 @@ module ElasticAPM
     def summarize(sql)
       self.class.cache[sql] ||=
         REGEXES.find do |regex, sig|
-          if (match = sql[0...1000].match(regex))
+          sql = sql[0...1000].encode(UTF8, invalid: :replace, replace: nil)
+          if (match = sql.match(regex))
             break format(FORMAT, sig, match[1] && match[1].gsub(/["']/, ''))
           end
         end || DEFAULT
