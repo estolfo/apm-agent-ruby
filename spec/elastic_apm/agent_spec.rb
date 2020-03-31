@@ -25,7 +25,7 @@ module ElasticAPM
         end
 
         it 'starts subservices' do
-          expect(subject.central_config).to receive(:start) { nil }
+          expect(subject.config).to receive(:start) { nil }
           expect(subject.transport).to receive(:start) { nil }
           expect(subject.instrumenter).to receive(:start) { nil }
           expect(subject.metrics).to receive(:start) { nil }
@@ -52,7 +52,7 @@ module ElasticAPM
         end
 
         it 'stops subservices' do
-          expect(subject.central_config).to receive(:stop)
+          expect(subject.config).to receive(:stop)
           expect(subject.transport).to receive(:stop)
           expect(subject.instrumenter).to receive(:stop)
           expect(subject.metrics).to receive(:stop)

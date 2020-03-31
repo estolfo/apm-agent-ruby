@@ -6,7 +6,6 @@ require 'elastic_apm/context_builder'
 require 'elastic_apm/error_builder'
 require 'elastic_apm/stacktrace_builder'
 
-require 'elastic_apm/central_config'
 require 'elastic_apm/transport/base'
 require 'elastic_apm/metrics'
 
@@ -60,11 +59,11 @@ module ElasticAPM
     end
 
     def initialize(config)
+      @config = config
       @stacktrace_builder = StacktraceBuilder.new(config)
       @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(self)
 
-      @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
       @metrics = Metrics.new(config) { |event| enqueue event }
       @instrumenter = Instrumenter.new(
@@ -75,7 +74,6 @@ module ElasticAPM
     end
 
     attr_reader(
-      :central_config,
       :config,
       :context_builder,
       :error_builder,
@@ -85,8 +83,6 @@ module ElasticAPM
       :transport
     )
 
-    def_delegator :@central_config, :config
-
     def start
       unless config.disable_start_message?
         config.logger.info format(
@@ -95,7 +91,7 @@ module ElasticAPM
         )
       end
 
-      central_config.start
+      config.start
       transport.start
       instrumenter.start
       metrics.start
@@ -111,7 +107,7 @@ module ElasticAPM
     def stop
       debug 'Stopping agent'
 
-      central_config.stop
+      config.stop
       metrics.stop
       instrumenter.stop
       transport.stop

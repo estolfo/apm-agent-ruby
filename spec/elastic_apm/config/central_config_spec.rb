@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe CentralConfig do
+  RSpec.describe Config::CentralConfig do
     after { WebMock.reset! }
 
     let(:config) { Config.new service_name: 'MyApp' }
@@ -39,7 +39,7 @@ module ElasticAPM
 
         # why more times, sometimes?
         expect(req_stub).to have_been_requested.at_least_once
-        expect(subject.config.transaction_sample_rate).to eq(0.5)
+        expect(config.transaction_sample_rate).to eq(0.5)
       end
 
       it 'reverts config if later 404' do
@@ -53,7 +53,7 @@ module ElasticAPM
         subject.fetch_and_apply_config
         subject.promise.wait
 
-        expect(subject.config.transaction_sample_rate).to eq(1.0)
+        expect(config.transaction_sample_rate).to eq(1.0)
       end
 
       context 'when server responds 200 and cache-control' do
@@ -98,7 +98,7 @@ module ElasticAPM
 
           expect(subject.scheduled_task).to be_pending
           expect(subject.scheduled_task.initial_delay).to eq 123
-          expect(subject.config.transaction_sample_rate).to eq(0.5)
+          expect(config.transaction_sample_rate).to eq(0.5)
         end
       end
 
@@ -151,13 +151,13 @@ module ElasticAPM
 
         it 'raises an error' do
           expect { subject.fetch_config }
-            .to raise_error(CentralConfig::ClientError)
+            .to raise_error(Config::CentralConfig::ClientError)
         end
 
         it 'includes the response' do
           begin
             subject.fetch_config
-          rescue CentralConfig::ClientError => e
+          rescue Config::CentralConfig::ClientError => e
             expect(e.response).to be_a(HTTP::Response)
           end
         end
@@ -168,7 +168,7 @@ module ElasticAPM
           stub_response('Server error', response: { status: 500 })
 
           expect { subject.fetch_config }
-            .to raise_error(CentralConfig::ServerError)
+            .to raise_error(Config::CentralConfig::ServerError)
         end
       end
 
@@ -208,20 +208,20 @@ module ElasticAPM
     describe '#assign' do
       it 'updates config' do
         subject.assign(transaction_sample_rate: 0.5)
-        expect(subject.config.transaction_sample_rate).to eq(0.5)
+        expect(config.transaction_sample_rate).to eq(0.5)
       end
 
       it 'reverts to previous when missing' do
         subject.assign(transaction_sample_rate: 0.5)
         subject.assign({})
-        expect(subject.config.transaction_sample_rate).to eq(1.0)
+        expect(config.transaction_sample_rate).to eq(1.0)
       end
 
       it 'goes back and forth' do
         subject.assign(transaction_sample_rate: 0.5)
         subject.assign({})
         subject.assign(transaction_sample_rate: 0.5)
-        expect(subject.config.transaction_sample_rate).to eq(0.5)
+        expect(config.transaction_sample_rate).to eq(0.5)
       end
     end
 

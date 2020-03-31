@@ -5,6 +5,7 @@ require 'elastic_apm/config/duration'
 require 'elastic_apm/config/bytes'
 require 'elastic_apm/config/regexp_list'
 require 'elastic_apm/config/wildcard_pattern_list'
+require 'elastic_apm/config/central_config'
 
 module ElasticAPM
   # @api private
@@ -95,6 +96,7 @@ module ElasticAPM
 
       @__view_paths ||= []
       @__root_path ||= Dir.pwd
+      @central_config = CentralConfig.new(self)
     end
 
     attr_accessor :__view_paths, :__root_path
@@ -105,6 +107,14 @@ module ElasticAPM
     def assign(update)
       return unless update
       update.each { |key, value| send(:"#{key}=", value) }
+    end
+
+    def start
+      @central_config.start
+    end
+
+    def stop
+      @central_config.stop
     end
 
     def available_instrumentations

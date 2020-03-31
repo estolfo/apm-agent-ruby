@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe CentralConfig::CacheControl do
+  RSpec.describe Config::CentralConfig::CacheControl do
     let(:header) { nil }
     subject { described_class.new(header) }
 
