@@ -101,8 +101,10 @@ module ElasticAPM
         end
 
         if @modified_options.any?
+          puts @config.options
           info 'Updated config from Kibana'
           debug 'Modified: %s', @modified_options.inspect
+          debug 'Changed to: %s', update.inspect
         end
       end
 
