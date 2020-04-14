@@ -19,36 +19,40 @@ RSpec.describe ElasticAPM do
     before { MockIntake.instance.stub! }
     after { ElasticAPM.stop }
     context 'when the agent is not running' do
-      it 'starts the agent' do
-        ElasticAPM.restart
-        expect(ElasticAPM::Agent).to be_running
+      context 'when a config is provided' do
+        it 'starts the agent with the config' do
+          ElasticAPM.restart(api_buffer_size: 10)
+          expect(ElasticAPM::Agent).to be_running
+          expect(ElasticAPM.agent.config.api_buffer_size).to eq(10)
+        end
+      end
+      context 'when no config is provided' do
+        it 'starts the agent' do
+          ElasticAPM.restart
+          expect(ElasticAPM::Agent).to be_running
+        end
       end
     end
     context 'when the agent is already running' do
-      before { ElasticAPM.start }
-      it 'restarts the agent' do
-        expect(ElasticAPM::Agent).to receive(:stop)
-          .at_least(:once).and_call_original
-        expect(ElasticAPM::Agent).to receive(:start)
-          .once.and_call_original
-        ElasticAPM.restart
-        expect(ElasticAPM::Agent).to be_running
+      context 'when a new config is passed' do
+        it 'restarts a new agent with the new config' do
+          ElasticAPM.start
+          original_agent = ElasticAPM.agent
+          ElasticAPM.restart(api_buffer_size: 10)
+          expect(ElasticAPM::Agent).to be_running
+          expect(ElasticAPM.agent.config.api_buffer_size).to be(10)
+          expect(ElasticAPM.agent).not_to be(original_agent)
+        end
       end
-    end
-    context 'when a new config is passed' do
-      before { ElasticAPM.start }
-      it 'restarts the agent with the new config' do
-        ElasticAPM.restart(api_buffer_size: 10)
-        expect(ElasticAPM::Agent).to be_running
-        expect(ElasticAPM.agent.config.api_buffer_size).to be(10)
-      end
-    end
-    context 'when no new config is passed' do
-      before { ElasticAPM.start(api_buffer_size: 10) }
-      it 'restarts the agent with the same config' do
-        ElasticAPM.restart
-        expect(ElasticAPM::Agent).to be_running
-        expect(ElasticAPM.agent.config.api_buffer_size).to be(10)
+      context 'when no new config is passed' do
+        it 'restarts the existing agent' do
+          ElasticAPM.start(api_buffer_size: 10)
+          original_agent = ElasticAPM.agent
+          ElasticAPM.restart
+          expect(ElasticAPM::Agent).to be_running
+          expect(ElasticAPM.agent.config.api_buffer_size).to be(10)
+          expect(ElasticAPM.agent).to be(original_agent)
+        end
       end
     end
   end

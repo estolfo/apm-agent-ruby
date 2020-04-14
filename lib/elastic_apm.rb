@@ -52,8 +52,11 @@ module ElasticAPM
     # Starts the agent if it is not running.
     # Stops and starts the agent if it is running.
     def restart(config = nil)
-      config ||= agent&.config
-      stop if running?
+      return start(config) unless running?
+      # When no new config is provided, just restart the agent's threads
+      return agent.restart unless config
+      # When a new config is provided, stop the agent and create a new one
+      stop
       start(config)
     end
 
