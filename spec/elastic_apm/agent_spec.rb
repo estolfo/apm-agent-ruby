@@ -165,5 +165,19 @@ module ElasticAPM
         end.to change(subject.transport.filters, :length).by 1
       end
     end
+
+    describe '#enqueue' do
+      context 'when the process is forked' do
+        before { subject.start }
+        after { subject.stop }
+        it 'restarts the agent' do
+          expect(subject).to receive(:restart).and_call_original
+          expect(Process).to receive(:pid).at_least(:once).and_return(1)
+          transaction = subject.start_transaction
+          subject.enqueue(transaction)
+          expect(subject.pid).to eq(1)
+        end
+      end
+    end
   end
 end

@@ -72,6 +72,7 @@ module ElasticAPM
         metrics: metrics,
         stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
+      @pid = Process.pid
     end
 
     attr_reader(
@@ -82,7 +83,8 @@ module ElasticAPM
       :instrumenter,
       :metrics,
       :stacktrace_builder,
-      :transport
+      :transport,
+      :pid
     )
 
     def_delegator :@central_config, :config
@@ -119,6 +121,11 @@ module ElasticAPM
       self
     end
 
+    def restart
+      stop
+      start
+    end
+
     at_exit do
       stop
     end
@@ -126,6 +133,7 @@ module ElasticAPM
     # transport
 
     def enqueue(obj)
+      ensure_same_process!
       transport.submit obj
     end
 
@@ -246,6 +254,14 @@ module ElasticAPM
 
     def inspect
       super.split.first + '>'
+    end
+
+    private
+
+    def ensure_same_process!
+      return if @pid == Process.pid
+      restart
+      @pid = Process.pid
     end
   end
 end
