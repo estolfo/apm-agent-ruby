@@ -57,6 +57,16 @@ module ElasticAPM
         stop_workers
       end
 
+      def restart_in_fork
+        # We can't simply call stop and start because the StopMessage
+        # might not be popped off the queue quickly enough before start
+        # is called again. We don't want to just clear the queue because
+        # events might be lost.
+        @pid = Process.pid
+        ensure_worker_count
+        ensure_watcher_running
+      end
+
       def submit(resource)
         if @stopped.true?
           warn '%s: Transport stopping, no new events accepted', pid_str
@@ -104,6 +114,7 @@ module ElasticAPM
       def ensure_worker_count
         @worker_mutex.synchronize do
           return if all_workers_alive?
+
           return if stopped.true?
 
           @workers.map! do |thread|

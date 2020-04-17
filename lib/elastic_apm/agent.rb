@@ -126,6 +126,13 @@ module ElasticAPM
       start
     end
 
+    def restart_in_fork
+      central_config.restart_in_fork
+      transport.restart_in_fork
+      instrumenter.restart_in_fork
+      metrics.restart_in_fork
+    end
+
     at_exit do
       stop
     end
@@ -260,7 +267,8 @@ module ElasticAPM
 
     def ensure_same_process!
       return if @pid == Process.pid
-      restart
+      debug 'Forking detected. Restarting tasks and threads.'
+      restart_in_fork
       @pid = Process.pid
     end
   end

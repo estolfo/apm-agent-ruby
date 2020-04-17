@@ -41,21 +41,7 @@ module ElasticAPM
           sets[key] = kls.new(config)
         end
 
-        @timer_task = Concurrent::TimerTask.execute(
-          run_now: true,
-          execution_interval: config.metrics_interval,
-          timeout_interval: TIMEOUT_INTERVAL
-        ) do
-          begin
-            debug 'Collecting metrics'
-            collect_and_send
-            true
-          rescue StandardError => e
-            error 'Error while collecting metrics: %e', e.inspect
-            debug { e.backtrace.join("\n") }
-            false
-          end
-        end
+        create_timer_task
 
         @running = true
       end
@@ -71,6 +57,13 @@ module ElasticAPM
 
       def running?
         !!@running
+      end
+
+      def restart_in_fork
+        # A TimerTask will return true from #running? even if the internal thread
+        # has died. There is no "reset" method so we have to recreate it.
+        @timer_task&.shutdown
+        create_timer_task
       end
 
       def get(key)
@@ -91,6 +84,24 @@ module ElasticAPM
           samples = set.collect
           next unless samples
           arr.concat(samples)
+        end
+      end
+
+      def create_timer_task
+        @timer_task = Concurrent::TimerTask.execute(
+          run_now: true,
+          execution_interval: config.metrics_interval,
+          timeout_interval: TIMEOUT_INTERVAL
+        ) do
+          begin
+            debug 'Collecting metrics'
+            collect_and_send
+            true
+          rescue StandardError => e
+            error 'Error while collecting metrics: %e', e.inspect
+            debug { e.backtrace.join("\n") }
+            false
+          end
         end
       end
     end

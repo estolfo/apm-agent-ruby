@@ -60,10 +60,18 @@ module ElasticAPM
     def stop
       debug 'Stopping instrumenter'
 
-      self.current_transaction = nil
-      current_spans.pop until current_spans.empty?
+      clear_events!
 
       @subscriber&.unregister!
+    end
+
+    def restart_in_fork
+      clear_events!
+    end
+
+    def clear_events!
+      self.current_transaction = nil
+      current_spans.pop until current_spans.empty?
     end
 
     def subscriber=(subscriber)

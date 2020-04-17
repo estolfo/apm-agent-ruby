@@ -44,6 +44,12 @@ module ElasticAPM
       @scheduled_task&.cancel
     end
 
+    def restart_in_fork
+      # A ScheduledTask does not have a way to check if the internal thread
+      # is dead or running so we have to forcibly reset the task.
+      @scheduled_task&.reset
+    end
+
     def fetch_and_apply_config
       @promise =
         Concurrent::Promise
@@ -148,7 +154,7 @@ module ElasticAPM
     def schedule_next_fetch(resp = nil)
       headers = resp&.headers
       seconds =
-        if headers['Cache-Control']
+        if headers && headers['Cache-Control']
           CacheControl.new(headers['Cache-Control']).max_age
         else
           DEFAULT_MAX_AGE
