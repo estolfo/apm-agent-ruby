@@ -21,9 +21,9 @@ module ElasticAPM
   # @api private
   module Spies
     # @api private
-    class DynamoDBSpy
-      TYPE = 'db'
-      SUBTYPE = 'dynamodb'
+    class S3Spy
+      TYPE = 'storage'
+      SUBTYPE = 's3'
 
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
@@ -36,30 +36,30 @@ module ElasticAPM
       end
 
       def install
-        ::Aws::DynamoDB::Client.class_eval do
+        ::Aws::S3::Client.class_eval do
           # Alias all available operations
           api.operation_names.each do |operation_name|
             alias :"#{operation_name}_without_apm" :"#{operation_name}"
 
             define_method(operation_name) do |params = {}, options = {}|
               context = ElasticAPM::Span::Context.new(
-                db: {
-                  instance: config.region,
-                  type: SUBTYPE
-                },
-                destination: {
-                  # TODO: set the region to the appropriate field when the spec is complete
-                  #region: config.region,
-                  resource: SUBTYPE,
-                  type: TYPE
-                }
+                  db: {
+                      instance: config.region,
+                      type: SUBTYPE
+                  },
+                  destination: {
+                      # TODO: set the region to the appropriate field when the spec is complete
+                      #region: config.region,
+                      resource: SUBTYPE,
+                      type: TYPE
+                  }
               )
               ElasticAPM.with_span(
-                operation_name,
-                TYPE,
-                subtype: SUBTYPE,
-                action: operation_name,
-                context: context
+                  operation_name,
+                  'db',
+                  subtype: 'dynamodb',
+                  action: operation_name,
+                  context: context
               ) do
                 ElasticAPM::Spies::DynamoDBSpy.without_net_http do
                   original_method = method("#{operation_name}_without_apm")
@@ -73,9 +73,9 @@ module ElasticAPM
     end
 
     register(
-      'Aws::DynamoDB::Client',
-      'aws-sdk-dynamodb',
-      DynamoDBSpy.new
+        'Aws::DynamoDB::Client',
+        'aws-sdk-dynamodb',
+        DynamoDBSpy.new
     )
   end
 end

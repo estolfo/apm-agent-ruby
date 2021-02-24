@@ -23,7 +23,7 @@ require 'aws-sdk-dynamodb'
 module ElasticAPM
   RSpec.describe 'Spy: DynamoDB' do
     let(:dynamo_db_client) do
-      ::Aws::DynamoDB::Client.new(stub_responses: true)
+      ::Aws::DynamoDB::Client.new(stub_responses: true, region: 'us-west-1')
     end
 
     it "spans operations", :intercept do
@@ -40,6 +40,16 @@ module ElasticAPM
       expect(span.subtype).to eq('dynamodb')
       expect(span.action).to eq(:update_item)
       expect(span.outcome).to eq('success')
+
+      # span context db
+      expect(span.context.db.instance).to eq('us-west-1')
+      expect(span.context.db.type).to eq('dynamodb')
+
+      # span context destination
+      # TODO: test the region in the appropriate field when the spec is complete
+      #expect(span.context.destination.region).to eq('us-west-1')
+      expect(span.context.destination.resource).to eq('dynamodb')
+      expect(span.context.destination.type).to eq('db')
     end
 
     context 'when the operation fails' do
