@@ -115,10 +115,10 @@ module ElasticAPM
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def handle_success(resp)
       puts "response: #{resp}"
-      puts "response headers: #{resp.headers.keys}"
-      unless (resp.headers['Etag'].nil? || resp.headers['Etag'] == '"-"')
-        puts "setting etag to #{resp.headers['Etag']}"
-        @etag = resp.headers['Etag']
+      puts "response headers: #{resp.headers.inspect}"
+      if resp.headers['Etag']
+        puts "setting etag to #{JSON.parse(resp.headers['Etag'])}"
+        @etag = JSON.parse(resp.headers['Etag'])
       end
 
       if resp.status == 304
