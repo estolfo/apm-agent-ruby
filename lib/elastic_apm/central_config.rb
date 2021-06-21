@@ -119,6 +119,7 @@ module ElasticAPM
       if resp.headers['Etag']
         puts "setting etag to #{JSON.parse(resp.headers['Etag'])}"
         @etag = JSON.parse(resp.headers['Etag'])
+        puts "@etag is #{@etag}"
       end
 
       if resp.status == 304
@@ -183,7 +184,7 @@ module ElasticAPM
     end
 
     def headers
-      @etag ? {} : { 'Etag': @etag }
+      { 'Etag': @etag }
     end
 
     def schedule_next_fetch(resp = nil)
