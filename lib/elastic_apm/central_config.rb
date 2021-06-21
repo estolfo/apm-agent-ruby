@@ -161,6 +161,7 @@ module ElasticAPM
 
     def perform_request
       puts "sending request with headers #{headers}"
+      puts "sending request to url #{server_url}"
       @http.get(server_url, headers: headers)
     end
 
