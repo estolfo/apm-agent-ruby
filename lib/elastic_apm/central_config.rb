@@ -146,6 +146,7 @@ module ElasticAPM
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def handle_error(error)
+      puts "received error: #{error}"
       # For tests, WebMock failures don't have real responses
       response = error.response if error.respond_to?(:response)
 
