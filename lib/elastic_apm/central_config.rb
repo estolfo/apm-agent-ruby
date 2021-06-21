@@ -43,7 +43,7 @@ module ElasticAPM
       @config = config
       @modified_options = {}
       @http = Transport::Connection::Http.new(config)
-      @etag = 1
+      @etag = ''
     end
 
     attr_reader :config
@@ -115,7 +115,7 @@ module ElasticAPM
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def handle_success(resp)
       if (etag = resp.headers['Etag'])
-        @etag = etag
+        @etag = JSON.parse(etag)
       end
 
       if resp.status == 304
