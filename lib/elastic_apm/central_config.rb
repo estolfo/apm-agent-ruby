@@ -43,7 +43,7 @@ module ElasticAPM
       @config = config
       @modified_options = {}
       @http = Transport::Connection::Http.new(config)
-      @etag = 1
+      @etag = nil
     end
 
     attr_reader :config
@@ -161,9 +161,10 @@ module ElasticAPM
     end
 
     def perform_request
-      puts "sending request with headers #{headers}"
-      puts "sending request to url #{server_url}"
+      puts "Sending request with headers #{headers}"
+      puts "Sending request to url #{server_url}"
       body = { service: { name: CGI.escape(config.service_name), environment: CGI.escape(config.environment || 'all')} }
+      puts "with body #{body}"
       @http.post(server_url, body: body.to_json, headers: headers)
     end
 
@@ -178,7 +179,7 @@ module ElasticAPM
     end
 
     def headers
-      { 'Etag': @etag }
+      @etag ? {} : { 'Etag': @etag }
     end
 
     def schedule_next_fetch(resp = nil)
