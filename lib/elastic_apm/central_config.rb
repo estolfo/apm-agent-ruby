@@ -163,15 +163,18 @@ module ElasticAPM
     def perform_request
       puts "sending request with headers #{headers}"
       puts "sending request to url #{server_url}"
-      @http.post(server_url, headers: headers)
+      body = { service: { name: CGI.escape(config.service_name), environment: CGI.escape(config.environment || 'all')} }
+      @http.post(server_url, body: body.to_json, headers: headers)
     end
 
     def server_url
       @server_url ||=
-        config.server_url +
-        '/config/v1/agents' \
-        "?service.name=#{CGI.escape(config.service_name)}" \
-        "&service.environment=#{CGI.escape(config.environment || '')}"
+          config.server_url + '/config/v1/agents'
+
+        # config.server_url +
+        # '/config/v1/agents' \
+        # "?service.name=#{CGI.escape(config.service_name)}" \
+        # "&service.environment=#{CGI.escape(config.environment || '')}"
     end
 
     def headers
