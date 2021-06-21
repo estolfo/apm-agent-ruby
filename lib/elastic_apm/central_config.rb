@@ -117,8 +117,8 @@ module ElasticAPM
       puts "response: #{resp}"
       puts "response headers: #{resp.headers}"
       unless (resp.headers['Etag'].nil? || resp.headers['Etag'] == '-')
-        puts "setting etag to #{etag}"
-        @etag = etag
+        puts "setting etag to #{resp.headers['Etag']}"
+        @etag = resp.headers['Etag']
       end
 
       if resp.status == 304
