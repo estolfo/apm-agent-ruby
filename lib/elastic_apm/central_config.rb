@@ -116,7 +116,6 @@ module ElasticAPM
     def handle_success(resp)
       puts "response: #{resp}"
       puts "response headers: #{resp.headers.to_s}"
-      binding.pry
       unless (resp.headers['Etag'].nil? || resp.headers['Etag'] == '"-"')
         puts "setting etag to #{resp.headers['Etag']}"
         @etag = resp.headers['Etag']

@@ -54,7 +54,6 @@ module ElasticAPM
         end
 
         def request(method, url, body: nil, headers: nil)
-          binding.pry
           @client.send(
             method,
             url,
