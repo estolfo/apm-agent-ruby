@@ -162,11 +162,14 @@ module ElasticAPM
     end
 
     def perform_request
-      puts "Sending request with headers #{headers}"
-      puts "Sending request to url #{server_url}"
-      body = { service: { name: CGI.escape(config.service_name), environment: CGI.escape(config.environment || 'all')} }
-      puts "with body #{body}"
-      @http.post(server_url, body: body.to_json, headers: headers)
+      # puts "Sending request with headers #{headers}"
+      # puts "Sending request to url #{server_url}"
+      # body = { service: { name: CGI.escape(config.service_name), environment: CGI.escape(config.environment || 'all')} }
+      # puts "with body #{body}"
+
+      puts "sending request with headers: #{headers}"
+      HTTP.get("http://apm-server:8200/config/v1/agents?service.name=opbeans-ruby&service.environment=production", headers: headers)
+        #@http.post(server_url, body: body.to_json, headers: headers)
     end
 
     def server_url
