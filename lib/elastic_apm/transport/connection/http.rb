@@ -137,3 +137,10 @@ module ElasticAPM
     end
   end
 end
+
+
+
+
+# curl -X POST http://localhost:8200/config/v1/agents \
+#   -H 'content-type: application/json' \
+#   -d '{"service": {"name": “opbeans-ruby"}}'
