@@ -115,6 +115,7 @@ module ElasticAPM
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def handle_success(resp)
       if (etag = resp.headers['Etag'])
+        puts "Setting etag to #{etag}"
         @etag = etag
       end
 
@@ -128,6 +129,7 @@ module ElasticAPM
 
         if update&.any?
           info 'Updated config from Kibana'
+          puts "Updates from Kibana are #{update}"
           debug 'Modified: %s', update.inspect
           debug 'Modified original options: %s', @modified_options.inspect
         end
@@ -157,6 +159,7 @@ module ElasticAPM
     end
 
     def perform_request
+      puts "Sending request with headers: #{headers}"
       @http.get(server_url, headers: headers)
     end
 
