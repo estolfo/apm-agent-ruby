@@ -159,8 +159,8 @@ module ElasticAPM
     end
 
     def perform_request
-      puts "sending request with no headers"
-      @http.get(server_url)
+      puts "sending request with headers #{headers}"
+      @http.get(server_url, headers: headers)
     end
 
     def server_url
