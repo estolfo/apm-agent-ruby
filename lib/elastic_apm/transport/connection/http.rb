@@ -54,6 +54,7 @@ module ElasticAPM
         end
 
         def request(method, url, body: nil, headers: nil)
+          puts "body is #{body}"
           @client.send(
             method,
             url,
@@ -106,7 +107,9 @@ module ElasticAPM
           debug '%s: Opening new request', thread_str
           Thread.new do
             begin
+              puts "sending request to url #{url}"
               resp = post(url, body: @rd, headers: @headers.chunked.to_h)
+              puts "got resp from request: #{resp}"
 
               if resp&.status == 202
                 debug 'APM Server responded with status 202'
@@ -114,6 +117,7 @@ module ElasticAPM
                 error "APM Server responded with an error:\n%p", resp.body.to_s
               end
             rescue Exception => e
+              puts "Got error trying to send request #{e}"
               error(
                 "Couldn't establish connection to APM Server:\n%p", e.inspect
               )
