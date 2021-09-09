@@ -44,7 +44,7 @@ module ElasticAPM
         @filters = Filters.new(config)
 
         @stopped = Concurrent::AtomicBoolean.new
-        @connection = Connection.new(config, io_class: Connection::Fifo)
+        @connection = Connection.new(config, io_class: Connection::Http)
       end
 
       attr_reader :config, :queue, :filters, :stopped, :connection
@@ -65,6 +65,8 @@ module ElasticAPM
 
       def flush
         write(concatenate_serialized_events)
+      rescue => e
+        puts "Got error sending on connection, #{e}"
       end
 
       def submit(resource)
