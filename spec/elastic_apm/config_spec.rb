@@ -278,5 +278,16 @@ module ElasticAPM
         expect(subject.logger.level).to eq(Logger::INFO)
       end
     end
+
+    describe 'data collector url' do
+      subject do
+        Config.new(server_url: 'somewhere.com',
+                   data_collector_url: 'somewhere-else.com')
+      end
+
+      it 'uses the data collector url over the server url' do
+        expect(subject.server_url).to eq ('somewhere-else.com')
+      end
+    end
   end
 end

@@ -38,6 +38,7 @@ module ElasticAPM
     option :server_url,                        type: :url,    default: 'http://localhost:8200'
     option :secret_token,                      type: :string
     option :api_key,                           type: :string
+    option :data_collector_url,                type: :string
 
     option :api_buffer_size,                   type: :int,    default: 256
     option :api_request_size,                  type: :bytes,  default: '750kb', converter: Bytes.new
@@ -186,6 +187,10 @@ module ElasticAPM
 
     def use_ssl?
       server_url.start_with?('https')
+    end
+
+    def server_url
+      data_collector_url || self.server_url
     end
 
     def collect_metrics?
