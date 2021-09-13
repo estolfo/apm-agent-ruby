@@ -45,7 +45,7 @@ module ElasticAPM
 
         @stopped = Concurrent::AtomicBoolean.new
         @connection = HTTP.headers('Content-Type' => 'application/x-ndjson')
-        @url = "#{config.server_url}/intake/v2/events"
+        @url = "#{config.data_collector_url}/intake/v2/events"
       end
 
       attr_reader :config, :queue, :filters, :stopped, :connection
