@@ -190,7 +190,7 @@ module ElasticAPM
     end
 
     def server_url
-      data_collector_url || self.server_url
+      data_collector_url || options[:server_url].value
     end
 
     def collect_metrics?
