@@ -412,6 +412,8 @@ module ElasticAPM
       @client = HTTP.headers('Content-Type' => 'application/x-ndjson')
       url = "#{agent&.config.data_collector_url}/intake/v2/events"
       puts "flushing data to url #{url}"
+      json = concatenated_json
+      puts "data is #{json}"
       resp = @client.post(url, body: concatenated_json)
       puts "resp from post #{resp}"
     rescue => e
