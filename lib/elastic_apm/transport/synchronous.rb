@@ -44,7 +44,8 @@ module ElasticAPM
         @filters = Filters.new(config)
 
         @stopped = Concurrent::AtomicBoolean.new
-        @connection = Connection.new(config, io_class: Connection::Http)
+        @connection = HTTP.headers('Content-Type' => 'application/x-ndjson')
+        @url = "#{config.server_url}/intake/v2/events"
       end
 
       attr_reader :config, :queue, :filters, :stopped, :connection
@@ -64,9 +65,9 @@ module ElasticAPM
       end
 
       def flush
-        write(concatenate_serialized_events)
-      rescue => e
-        puts "Got error sending on connection, #{e}"
+        puts "Posting data"
+        resp = @connection.post(@url, json: concatenate_serialized_events)
+        puts "response is #{resp}"
       end
 
       def submit(resource)
