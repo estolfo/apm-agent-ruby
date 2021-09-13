@@ -411,7 +411,7 @@ module ElasticAPM
     def flush_data
       puts "flushing data"
       @client = HTTP.headers('Content-Type' => 'application/x-ndjson')
-      resp = @client.post(agent&.config.data_collector_url, body: "{\"test\":1}\r\n")
+      resp = @client.post("#{agent&.config.data_collector_url}/intake/v2/events", body: "{\"test\":1}\r\n")
       puts "resp from post #{resp}"
     rescue => e
       puts "Got error when posting: #{e}"
