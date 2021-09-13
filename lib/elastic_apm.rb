@@ -412,11 +412,15 @@ module ElasticAPM
       @client = HTTP.headers('Content-Type' => 'application/x-ndjson')
       url = "#{agent&.config.data_collector_url}/intake/v2/events"
       puts "flushing data to url #{url}"
-      resp = @client.post(url, body: "{\"test\":1}\r\n")
+      resp = @client.post(url, body: concatenated_json)
       puts "resp from post #{resp}"
     rescue => e
       puts "Got error when posting: #{e}"
       puts "With backtrace: #{e.backtrace}"
+    end
+
+    def concatenated_json
+      agent&.transport.concatenate_json
     end
   end
 end

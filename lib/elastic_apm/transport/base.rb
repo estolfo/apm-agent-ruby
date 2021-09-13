@@ -104,6 +104,53 @@ module ElasticAPM
         create_watcher
       end
 
+      def concatenate_json
+        str = ""
+        while queue.size > 0
+          resource = queue.pop
+          str += process(resource) + "\r\n"
+        end
+        str
+      end
+
+      def process(resource)
+        begin
+          if resource.respond_to?(:prepare_for_serialization!)
+            resource.prepare_for_serialization!
+          end
+
+          serialized = @serializers.serialize(resource)
+
+          # if a filter returns nil, it means skip the event
+          return nil if @filters.apply!(serialized) == Filters::SKIP
+
+          JSON.fast_generate(serialized)
+        rescue Exception
+          error format('Failed converting event to JSON: %s', resource.inspect)
+          error serialized.inspect
+          nil
+        end
+      end
+
+      private
+
+      def serialize_and_filter(resource)
+        if resource.respond_to?(:prepare_for_serialization!)
+          resource.prepare_for_serialization!
+        end
+
+        serialized = serializers.serialize(resource)
+
+        # if a filter returns nil, it means skip the event
+        return nil if @filters.apply!(serialized) == Filters::SKIP
+
+        JSON.fast_generate(serialized)
+      rescue Exception
+        error format('Failed converting event to JSON: %s', resource.inspect)
+        error serialized.inspect
+        nil
+      end
+
       private
 
       def pid_str
