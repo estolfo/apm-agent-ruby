@@ -106,6 +106,11 @@ module ElasticAPM
 
       def concatenate_json
         str = ""
+        str += JSON.fast_generate(
+          Serializers::MetadataSerializer.new(config).build(
+            Metadata.new(config)
+          )
+        )
         while queue.size > 0
           resource = queue.pop
           str += process(resource) + "\r\n"
