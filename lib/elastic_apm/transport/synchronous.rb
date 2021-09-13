@@ -66,7 +66,7 @@ module ElasticAPM
 
       def flush
         puts "Posting data"
-        resp = @connection.post(@url, json: concatenate_serialized_events)
+        resp = @connection.post(@url, body: concatenate_serialized_events)
         puts "response is #{resp}"
       end
 
