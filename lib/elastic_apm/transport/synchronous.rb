@@ -61,13 +61,15 @@ module ElasticAPM
         @stopped.make_true
 
         send_stop_message
-        flush
       end
 
       def flush
         puts "Posting data"
         resp = @connection.post(@url, body: concatenate_serialized_events)
         puts "response is #{resp}"
+      rescue => e
+        puts "got error #{e}"
+        puts "backtrace #{e.backtrace}"
       end
 
       def submit(resource)
