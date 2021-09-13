@@ -410,6 +410,11 @@ module ElasticAPM
 
     def flush_data
       puts "flushing data"
+      @client = HTTP.headers('Content-Type' => 'application/x-ndjson')
+      @client.post(agent&.config.data_collector_url, body: "{\"test\":1}\r\n")
+    rescue => e
+      puts "Got error when posting: #{e}"
+      puts "With backtrace: #{e.backtrace}"
     end
   end
 end
