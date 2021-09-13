@@ -53,6 +53,7 @@ module ElasticAPM
     option :current_user_id_method,            type: :string, default: 'id'
     option :current_user_username_method,      type: :string, default: 'username'
     option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
+    option :data_collector_url,                type: :string
     option :default_labels,                    type: :dict,   default: {}
     option :disable_metrics,                   type: :list,   default: [],      converter: WildcardPatternList.new
     option :disable_send,                      type: :bool,   default: false
@@ -202,6 +203,10 @@ module ElasticAPM
 
     def span_frames_min_duration_us
       @span_frames_min_duration_us ||= span_frames_min_duration * 1_000_000
+    end
+
+    def server_url
+      data_collector_url || super
     end
 
     def ssl_context

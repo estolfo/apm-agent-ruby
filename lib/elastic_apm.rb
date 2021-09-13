@@ -407,5 +407,9 @@ module ElasticAPM
 
       agent&.add_filter(key, block || callback)
     end
+
+    def flush_data
+      puts "flushing data"
+    end
   end
 end
