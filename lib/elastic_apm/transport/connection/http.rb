@@ -111,7 +111,7 @@ module ElasticAPM
               if resp&.status == 202
                 debug 'APM Server responded with status 202'
               elsif resp
-                error "APM Server responded with an error:\n%p", resp.body.to_s
+                error "APM Server responded with code %p and an error:\n%p", resp.status, resp.body.to_s
               end
             rescue Exception => e
               error(

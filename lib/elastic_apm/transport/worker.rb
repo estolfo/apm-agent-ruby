@@ -72,6 +72,7 @@ module ElasticAPM
 
       def process(resource)
         return unless (json = serialize_and_filter(resource))
+        puts "writing json to connection #{json}"
         connection.write(json)
       end
 
