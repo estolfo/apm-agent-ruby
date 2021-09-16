@@ -69,6 +69,7 @@ module ElasticAPM
         end
 
         def close(reason)
+          puts "close called on request"
           return if closed?
 
           debug '%s: Closing request with reason %s', thread_str, reason
@@ -107,6 +108,7 @@ module ElasticAPM
           Thread.new do
             begin
               resp = post(url, body: @rd, headers: @headers.chunked.to_h)
+              puts "response is #{resp}"
 
               if resp&.status == 202
                 debug 'APM Server responded with status 202'
