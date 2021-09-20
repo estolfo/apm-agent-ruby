@@ -72,6 +72,7 @@ module ElasticAPM
 
           def write(str)
             io.puts(str).tap do
+              puts "io.puts"
               @bytes_sent.update do |curr|
                 @compress ? io.tell : curr + str.bytesize
               end
