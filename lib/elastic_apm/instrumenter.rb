@@ -242,9 +242,11 @@ module ElasticAPM
 
       return unless span
 
-      span.done
+      Lifecycle.finish_span(span, enqueue)
 
-      enqueue.call span
+      # span.done
+
+      # enqueue.call span
 
       update_span_metrics(span)
 
