@@ -45,14 +45,22 @@ module ElasticAPM
             @compress = compress
             @bytes_sent = Concurrent::AtomicFixnum.new(0)
             @config = ElasticAPM.agent&.config # this is silly, fix Logging
+            @writing = Concurrent::AtomicBoolean.new(false)
 
             return unless compress
             enable_compression!
-            ObjectSpace.define_finalizer(self, self.class.finalize(@io))
+            ObjectSpace.define_finalizer(self, self.class.finalize(@io, @writing))
           end
 
-          def self.finalize(io)
-            proc { io.close }
+          def self.finalize(io, writing)
+            proc do
+              loop do
+                if writing.false?
+                  io.close
+                  break
+                end
+              end
+            end
           end
 
           attr_reader :io
@@ -71,11 +79,13 @@ module ElasticAPM
           end
 
           def write(str)
+            @writing.make_true
             io.puts(str).tap do
               @bytes_sent.update do |curr|
                 @compress ? io.tell : curr + str.bytesize
               end
             end
+            @writing.make_false
           end
 
           def bytes_sent
