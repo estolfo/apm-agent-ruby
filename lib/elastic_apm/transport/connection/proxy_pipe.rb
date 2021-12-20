@@ -48,11 +48,6 @@ module ElasticAPM
 
             return unless compress
             enable_compression!
-            ObjectSpace.define_finalizer(self, self.class.finalize(@io))
-          end
-
-          def self.finalize(io)
-            proc { io.close }
           end
 
           attr_reader :io

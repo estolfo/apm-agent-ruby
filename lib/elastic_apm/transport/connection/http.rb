@@ -82,6 +82,10 @@ module ElasticAPM
             thread_str
           )
           @request.kill
+        ensure
+          @rd&.close
+          @wr&.close
+          @wr&.io&.close
         end
 
         def closed?

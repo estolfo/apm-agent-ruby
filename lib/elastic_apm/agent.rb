@@ -83,7 +83,10 @@ module ElasticAPM
 
       @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
-      @metrics = Metrics.new(config) { |event| enqueue event }
+      @metrics = Metrics.new(config) do |event|
+        detect_forking!
+        enqueue event
+      end
       @instrumenter = Instrumenter.new(
         config,
         metrics: metrics,
