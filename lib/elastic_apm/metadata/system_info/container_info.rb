@@ -29,6 +29,7 @@ module ElasticAPM
 
         def initialize(cgroup_path: CGROUP_PATH)
           @cgroup_path = cgroup_path
+          puts "cgroup_path: #{@cgroup_path}"
         end
 
         attr_reader :cgroup_path
@@ -104,6 +105,7 @@ module ElasticAPM
         def read_from_cgroup!
           return unless File.exist?(cgroup_path)
           IO.readlines(cgroup_path).each do |line|
+            puts "cgroup_path line: #{line}"
             parts = line.strip.split(':')
             next if parts.length != 3
 
