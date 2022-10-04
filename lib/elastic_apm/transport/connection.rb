@@ -96,7 +96,8 @@ module ElasticAPM
 
         @http =
           Http.open(@config, @url).tap do |http|
-            debug @metadata
+            puts "Metadata for this request"
+            puts @metadata
             http.write(@metadata)
           end
       end
